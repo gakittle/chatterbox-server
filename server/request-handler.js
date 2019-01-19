@@ -36,39 +36,42 @@ var requestHandler = function(request, response) {
   // Adding more logging to your server can be an easy way to get passive
   // debugging help, but you should always be careful about leaving stray
   // console.logs in your code.
+
   console.log('Serving request type ' + request.method + ' for url ' + request.url);
 
   // console.log(storage.results); // > []
   // The outgoing status.
   var statusCode;
-  if (request.method === 'POST') {
-    statusCode = 201;
-    storage.results.push(request._postData);
-    // if (request._postData.username && request._postData.text) {
-    //   storage.results.push(JSON.stringify(request._postData));
-
-    // }
-    // console.log(JSON.stringify(request._postData) + '------------------------------------')
-  } else if (request.url !== '/classes/messages' && request.url !== 'http://127.0.0.1:3000/classes/messages') {
+  
+  if (request.url === '/classes/messages' || request.url === 'http://127.0.0.1:3000/classes/messages') {
+    if (request.method === 'POST') {
+      statusCode = 201;
+      // push to storage
+      request.on('data', (chunk) => {
+        storage.results.push(JSON.parse(chunk.toString('utf-8')));
+        
+      });
+      // storage.results.push(request._postData);
+    } else if (request.method === 'GET') {
+      statusCode = 200;
+    }
+  } else {
     statusCode = 404;
-  } else { 
-    statusCode = 200; 
   }
-
-
+  
   // See the note below about CORS headers.
   var headers = defaultCorsHeaders;
-
+  
   // Tell the client we are sending them plain text.
   //
   // You will need to change this if you are sending something
   // other than plain text, like JSON or HTML.
-  headers['Content-Type'] = 'text/plain';
-
+  headers['Content-Type'] = 'application/json';
+  
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
   response.writeHead(statusCode, headers);
-
+  
   // Make sure to always call response.end() - Node may not send
   // anything back to the client until you do. The string you pass to
   // response.end() will be the body of the response - i.e. what shows
@@ -77,9 +80,6 @@ var requestHandler = function(request, response) {
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
   var messages = JSON.parse(JSON.stringify(storage));
-  if (messages.results[0]) {
-    console.log(messages.results[0].username);
-  }
   response.end(JSON.stringify(storage));
 };
 
