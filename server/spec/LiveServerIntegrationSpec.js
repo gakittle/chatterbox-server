@@ -73,5 +73,13 @@ describe('server', function() {
     });
   });
 
+  it('Should not return user data when asked for a nonexistent endpoint', function(done) {
+    request('http://127.0.0.1:3000/arglebargle', function(error, response, body) {
+      var messages = JSON.parse(body);
+      expect(messages.length).to.equal(0);
+      done();
+    });
+  });
+
 
 });
