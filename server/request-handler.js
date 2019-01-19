@@ -38,12 +38,21 @@ var requestHandler = function(request, response) {
   // console.logs in your code.
   console.log('Serving request type ' + request.method + ' for url ' + request.url);
 
-  console.log(storage.results); // > []
+  // console.log(storage.results); // > []
   // The outgoing status.
-  var statusCode = 200;
+  var statusCode;
   if (request.method === 'POST') {
     statusCode = 201;
-    storage.results.push(request._postdata);
+    storage.results.push(request._postData);
+    // if (request._postData.username && request._postData.text) {
+    //   storage.results.push(JSON.stringify(request._postData));
+
+    // }
+    // console.log(JSON.stringify(request._postData) + '------------------------------------')
+  } else if (request.url !== '/classes/messages' && request.url !== 'http://127.0.0.1:3000/classes/messages') {
+    statusCode = 404;
+  } else { 
+    statusCode = 200; 
   }
 
 
@@ -67,7 +76,11 @@ var requestHandler = function(request, response) {
   //
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
-  response.end('{"results": []}');
+  var messages = JSON.parse(JSON.stringify(storage));
+  if (messages.results[0]) {
+    console.log(messages.results[0].username);
+  }
+  response.end(JSON.stringify(storage));
 };
 
 // These headers will allow Cross-Origin Resource Sharing (CORS).
