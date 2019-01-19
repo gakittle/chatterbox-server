@@ -14,10 +14,19 @@ this file and include it in basic-server.js so that it actually works.
 var storageObj = require('./storage');
 var storage = storageObj.storage;
 
+// These headers will allow Cross-Origin Resource Sharing (CORS).
+// This code allows this server to talk to websites that
+// are on different domains, for instance, your chat client.
+//
+// Your chat client is running from a url like file://your/chat/client/index.html,
+// which is considered a different domain.
+//
+// Another way to get around this restriction is to serve you chat
+// client from this domain by setting up static file serving.
 var defaultCorsHeaders = {
   'access-control-allow-origin': '*',
   'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'access-control-allow-headers': 'content-type, accept',
+  'access-control-allow-headers': 'content-type, accept, X-Parse-Application-Id, X-Parse-REST-API-Key',
   'access-control-max-age': 10 // Seconds.
 };
 
@@ -39,20 +48,19 @@ var requestHandler = function(request, response) {
 
   console.log('Serving request type ' + request.method + ' for url ' + request.url);
 
-  // console.log(storage.results); // > []
   // The outgoing status.
   var statusCode;
   
-  if (request.url === '/classes/messages' || request.url === 'http://127.0.0.1:3000/classes/messages') {
+  if (request.url.slice(0, 17) === '/classes/messages' || request.url === 'http://127.0.0.1:3000/') {
     if (request.method === 'POST') {
       statusCode = 201;
       // push to storage
       request.on('data', (chunk) => {
-        storage.results.push(JSON.parse(chunk.toString('utf-8')));
+        var singleMessageObj = JSON.parse(chunk.toString('utf-8'));
+        storage.results.push(singleMessageObj);
         
       });
-      // storage.results.push(request._postData);
-    } else if (request.method === 'GET') {
+    } else if (request.method === 'GET' || request.method === 'OPTIONS') {
       statusCode = 200;
     }
   } else {
@@ -79,18 +87,8 @@ var requestHandler = function(request, response) {
   //
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
-  var messages = JSON.parse(JSON.stringify(storage));
   response.end(JSON.stringify(storage));
 };
 
-// These headers will allow Cross-Origin Resource Sharing (CORS).
-// This code allows this server to talk to websites that
-// are on different domains, for instance, your chat client.
-//
-// Your chat client is running from a url like file://your/chat/client/index.html,
-// which is considered a different domain.
-//
-// Another way to get around this restriction is to serve you chat
-// client from this domain by setting up static file serving.
 
 module.exports = { requestHandler };
