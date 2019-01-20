@@ -1,5 +1,6 @@
 var request = require('request');
 var expect = require('chai').expect;
+// var $ = require('../node_modules/jquery');
 
 describe('server', function() {
   it('should respond to GET requests for /classes/messages with a 200 status code', function(done) {
@@ -81,5 +82,21 @@ describe('server', function() {
     });
   });
 
+  // it ('Should not have messages with non-unique object Ids', function(done) {
+  //   $('form').on('submit', function(e) {
+  //     console.log('clicked')
+  //   })
+  //   request('http://127.0.0.1:3000/arglebargle', function(error, response, body) {
+  //     var messages = JSON.parse(body).results;
+  //     expect(messages[0].objectId === messages[1].objectId).to.be.false;
+  //     done();
+  //   });
+  // });
 
+  it('should accept OPTIONS requests to /classes/messages', function(done) {
+    request('http://127.0.0.1:3000/classes/messages', function(error, response, body) {
+      expect(response.statusCode).to.equal(200);
+      done();
+    });
+  });
 });
