@@ -53,7 +53,7 @@ var requestHandler = function(request, response) {
   var headers = defaultCorsHeaders;
   
   if (request.url.slice(0, 17) === '/classes/messages' || request.url === 'http://127.0.0.1:3000/') {
-    if (request.method === 'POST') {
+    if (request.method === 'POST' || request.method === 'PUT') {
       headers['Content-Type'] = 'application/json';
       statusCode = 201;
       response.writeHead(statusCode, headers);
@@ -74,29 +74,8 @@ var requestHandler = function(request, response) {
     statusCode = 404;
     response.writeHead(statusCode, headers);
     console.log('Invalid Input');
-    response.end(JSON.stringify([]));
+    response.end(JSON.stringify([])); 
   }
-  
-  // See the note below about CORS headers.
-  
-  // Tell the client we are sending them plain text.
-  //
-  // You will need to change this if you are sending something
-  // other than plain text, like JSON or HTML.
-  // headers['Content-Type'] = 'application/json';
-  
-  // .writeHead() writes to the request line and headers of the response,
-  // which includes the status and all headers.
-  // response.writeHead(statusCode, headers);
-  
-  // Make sure to always call response.end() - Node may not send
-  // anything back to the client until you do. The string you pass to
-  // response.end() will be the body of the response - i.e. what shows
-  // up in the browser.
-  //
-  // Calling .end "flushes" the response's internal buffer, forcing
-  // node to actually send all the data over to the client.
-  // response.end(JSON.stringify(storage));
 };
 
 

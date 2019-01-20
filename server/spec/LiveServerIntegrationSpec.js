@@ -82,21 +82,25 @@ describe('server', function() {
     });
   });
 
-  // it ('Should not have messages with non-unique object Ids', function(done) {
-  //   $('form').on('submit', function(e) {
-  //     console.log('clicked')
-  //   })
-  //   request('http://127.0.0.1:3000/arglebargle', function(error, response, body) {
-  //     var messages = JSON.parse(body).results;
-  //     expect(messages[0].objectId === messages[1].objectId).to.be.false;
-  //     done();
-  //   });
-  // });
-
   it('should accept OPTIONS requests to /classes/messages', function(done) {
     request('http://127.0.0.1:3000/classes/messages', function(error, response, body) {
       expect(response.statusCode).to.equal(200);
       done();
     });
   });
+
+  it('should accept PUT requests to /classes/messages', function(done) {
+    var requestParams = {method: 'PUT',
+      uri: 'http://127.0.0.1:3000/classes/messages',
+      json: {
+        username: 'Lono',
+        text: 'Do my bidding!'}
+    };
+
+    request(requestParams, function(error, response, body) {
+      expect(response.statusCode).to.equal(201);
+      done();
+    });
+  });
+
 });
